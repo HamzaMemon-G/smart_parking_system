@@ -219,6 +219,22 @@ class MainApplication:
         self.stats_labels = {}
         stats_grid = ttk.Frame(stats_frame)
         stats_grid.pack()
+        
+        stat_names = [
+            ('total', 'Total Slots', 0, 0),
+            ('available', 'Available', 0, 1),
+            ('occupied', 'Occupied', 0, 2),
+            ('active_bookings', 'Active Bookings', 1, 0),
+            ('total_revenue', 'Total Revenue', 1, 1),
+        ]
+        
+        for key, label, row, col in stat_names:
+            frame = tk.Frame(stats_grid, bg='#ecf0f1', relief='raised', bd=2)
+            frame.grid(row=row, column=col, padx=10, pady=10, sticky='ew')
+            
+            tk.Label(frame, text=label, font=('Arial', 10), bg='#ecf0f1').pack(pady=5)
+            self.stats_labels[key] = tk.Label(frame, text='0', font=('Arial', 16, 'bold'), bg='#ecf0f1')
+            self.stats_labels[key].pack(pady=5)
     
     def create_booking_tab(self):
         """Create booking tab"""
@@ -448,7 +464,20 @@ class MainApplication:
         stats = self.parking_manager.get_slot_statistics()
         
         if hasattr(self, 'stats_labels') and self.stats_labels:
-            pass
+            self.stats_labels['total'].config(text=str(stats.get('total', 0)))
+            self.stats_labels['available'].config(text=str(stats.get('available', 0)), fg='#27ae60')
+            self.stats_labels['occupied'].config(text=str(stats.get('occupied', 0)), fg='#e74c3c')
+            
+            # Get active bookings count
+            active_bookings = len(self.booking_manager.get_my_active_bookings())
+            self.stats_labels['active_bookings'].config(text=str(active_bookings))
+            
+            # Get total revenue from database
+            revenue = self.booking_manager.db.fetch_one(
+                "SELECT COALESCE(SUM(amount), 0) as total FROM payments"
+            )
+            total_revenue = revenue['total'] if revenue else 0
+            self.stats_labels['total_revenue'].config(text=f"₹{total_revenue:.2f}", fg='#27ae60')
         
         self.user_data = self.user_manager.get_user_info()
     

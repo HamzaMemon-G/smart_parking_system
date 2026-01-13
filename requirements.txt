@@ -1,0 +1,9 @@
+# Smart Parking Management System - Dependencies
+pandas
+matplotlib
+numpy
+Pillow
+qrcode
+reportlab
+ttkthemes
+faker

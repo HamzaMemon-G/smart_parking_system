@@ -16,6 +16,7 @@ from models.booking import BookingManager, PaymentManager
 from models.analytics import AnalyticsManager
 from utils.qr_generator import QRCodeGenerator
 from utils.pdf_generator import PDFGenerator
+from utils.license_plate_detector import LicensePlateDetector
 from database.db_manager import get_db_manager
 
 
@@ -331,11 +332,22 @@ class MainApplication:
         self.vehicle_entry = ttk.Entry(form_frame, textvariable=self.vehicle_number_var, width=20)
         self.vehicle_entry.grid(row=0, column=1, padx=5, pady=5)
         
-        ttk.Label(form_frame, text="Type:").grid(row=0, column=2, padx=5, pady=5, sticky='e')
+        # Camera and upload buttons for license plate detection
+        ttk.Button(form_frame, text="📷 Camera", command=self.scan_license_plate_camera).grid(
+            row=0, column=2, padx=2, pady=5)
+        ttk.Button(form_frame, text="🖼️ Upload", command=self.scan_license_plate_image).grid(
+            row=0, column=3, padx=2, pady=5)
+        # Camera and upload buttons for license plate detection
+        ttk.Button(form_frame, text="📷 Camera", command=self.scan_license_plate_camera).grid(
+            row=0, column=2, padx=2, pady=5)
+        ttk.Button(form_frame, text="🖼️ Upload", command=self.scan_license_plate_image).grid(
+            row=0, column=3, padx=2, pady=5)
+        
+        ttk.Label(form_frame, text="Type:").grid(row=0, column=4, padx=5, pady=5, sticky='e')
         self.new_vehicle_type_var = tk.StringVar(value="car")
         ttk.Combobox(form_frame, textvariable=self.new_vehicle_type_var, 
                     values=["car", "bike", "truck"], state='readonly', width=15).grid(
-                    row=0, column=3, padx=5, pady=5)
+                    row=0, column=5, padx=5, pady=5)
         
         ttk.Label(form_frame, text="Brand:").grid(row=1, column=0, padx=5, pady=5, sticky='e')
         self.vehicle_brand_var = tk.StringVar()
@@ -896,6 +908,136 @@ class MainApplication:
             self.load_vehicles()
         else:
             messagebox.showerror("Error", message)
+    
+    def scan_license_plate_image(self):
+        """Scan license plate from uploaded image"""
+        try:
+            # Initialize detector
+            detector = LicensePlateDetector()
+            
+            # Open file dialog to select image
+            file_path = filedialog.askopenfilename(
+                title="Select License Plate Image",
+                filetypes=[
+                    ("Image Files", "*.jpg *.jpeg *.png *.bmp"),
+                    ("All Files", "*.*")
+                ]
+            )
+            
+            if not file_path:
+                return  # User cancelled
+            
+            # Show processing message
+            self.root.config(cursor="wait")
+            self.root.update()
+            
+            # Detect from image
+            plate_number, annotated_image = detector.detect_from_image(file_path)
+            
+            self.root.config(cursor="")
+            
+            if plate_number:
+                # Show result image with detection
+                import cv2
+                from PIL import Image, ImageTk
+                
+                # Display result in popup
+                result_window = tk.Toplevel(self.root)
+                result_window.title("License Plate Detected")
+                result_window.geometry("600x500")
+                
+                # Convert OpenCV image to Tkinter format
+                rgb_image = cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB)
+                pil_image = Image.fromarray(rgb_image)
+                pil_image = pil_image.resize((500, 350), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(pil_image)
+                
+                # Display image
+                img_label = tk.Label(result_window, image=photo)
+                img_label.image = photo  # Keep reference
+                img_label.pack(pady=10)
+                
+                # Show detected text
+                tk.Label(result_window, text=f"Detected: {plate_number}", 
+                        font=('Arial', 16, 'bold'), fg='#27ae60').pack(pady=10)
+                
+                # Buttons
+                btn_frame = ttk.Frame(result_window)
+                btn_frame.pack(pady=10)
+                
+                def use_detected():
+                    self.vehicle_number_var.set(plate_number)
+                    result_window.destroy()
+                    messagebox.showinfo("Success", f"Plate number set to: {plate_number}\n\nPlease verify and complete other fields.")
+                
+                ttk.Button(btn_frame, text="✅ Use This Number", command=use_detected).pack(side='left', padx=5)
+                ttk.Button(btn_frame, text="❌ Cancel", command=result_window.destroy).pack(side='left', padx=5)
+                
+            else:
+                messagebox.showwarning(
+                    "No Plate Detected", 
+                    "Could not detect license plate in the image.\n\n"
+                    "Tips:\n"
+                    "• Use clear, well-lit images\n"
+                    "• Ensure plate is visible and not blurry\n"
+                    "• Try a different angle\n"
+                    "• Or enter manually"
+                )
+        
+        except ImportError:
+            messagebox.showerror(
+                "Missing Dependencies",
+                "OpenCV or Tesseract not installed!\n\n"
+                "Install with:\n"
+                "pip install opencv-python pytesseract imutils\n\n"
+                "Also download Tesseract OCR from:\n"
+                "https://github.com/UB-Mannheim/tesseract/wiki"
+            )
+        except Exception as e:
+            self.root.config(cursor="")
+            messagebox.showerror("Error", f"Detection error: {str(e)}\n\nPlease try a different image or enter manually.")
+    
+    def scan_license_plate_camera(self):
+        """Scan license plate using camera"""
+        try:
+            # Initialize detector
+            detector = LicensePlateDetector()
+            
+            # Show instructions
+            result = messagebox.askquestion(
+                "License Plate Scanner",
+                "This will open your camera to detect the license plate.\n\n"
+                "Instructions:\n"
+                "• Position the vehicle plate in front of camera\n"
+                "• Press SPACE to capture when plate is detected\n"
+                "• Press ESC to cancel\n\n"
+                "Continue?"
+            )
+            
+            if result == 'yes':
+                # Capture from camera
+                plate_number = detector.capture_from_camera()
+                
+                if plate_number:
+                    # Fill in the vehicle number field
+                    self.vehicle_number_var.set(plate_number)
+                    messagebox.showinfo("Success", f"Detected plate: {plate_number}\n\nPlease verify and complete other fields.")
+                else:
+                    messagebox.showwarning("No Plate Detected", 
+                                         "Could not detect license plate.\n"
+                                         "Please enter manually or try uploading an image instead.")
+        
+        except ImportError:
+            messagebox.showerror(
+                "Missing Dependencies",
+                "OpenCV or Tesseract not installed!\n\n"
+                "Install with:\n"
+                "pip install opencv-python pytesseract imutils\n\n"
+                "Also download Tesseract OCR from:\n"
+                "https://github.com/UB-Mannheim/tesseract/wiki"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"Camera error: {str(e)}\n\nPlease check camera or try uploading an image instead.")
     
     def delete_vehicle(self):
         """Delete selected vehicle"""

@@ -7,3 +7,6 @@ qrcode
 reportlab
 ttkthemes
 faker
+opencv-python
+pytesseract
+imutils

@@ -140,6 +140,7 @@ def book_slot_view(request, slot_id):
         
         # Calculate deadlines
         checkin_deadline = timezone.now() + timedelta(minutes=settings.BOOKING_CHECKIN_WINDOW_MINUTES)
+        booking_time = timezone.now()
         
         # Create booking using raw SQL
         try:
@@ -147,11 +148,13 @@ def book_slot_view(request, slot_id):
                 cursor.execute("""
                     INSERT INTO bookings (
                         user_id, vehicle_id, slot_id, ticket_number, booking_status,
-                        total_amount, base_amount, checkin_deadline, duration_hours
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        total_amount, base_amount, checkin_deadline, duration_hours,
+                        booking_time, entry_time
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, [
                     request.user.user_id, vehicle.vehicle_id, slot.slot_id,
-                    ticket_number, 'pending', cost, cost, checkin_deadline, hours
+                    ticket_number, 'pending', cost, cost, checkin_deadline, hours,
+                    booking_time, booking_time
                 ])
                 booking_id = cursor.lastrowid
                 connection.commit()

@@ -3,10 +3,13 @@ pandas
 matplotlib
 numpy
 Pillow
-qrcode
+qrcode[pil]
 reportlab
 ttkthemes
 faker
 opencv-python
 pytesseract
 imutils
+pyzbar
+django
+djangorestframework

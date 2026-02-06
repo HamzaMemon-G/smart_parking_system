@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Wallet - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-md-8 offset-md-2">
+            <h2>My Wallet</h2>
+            
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Current Balance</h5>
+                    <h1 class="display-3">₹{{ user.wallet_balance }}</h1>
+                    <a href="{% url 'accounts:wallet_recharge' %}" class="btn btn-primary btn-lg mt-3">
+                        <i class="bi bi-plus-circle"></i> Recharge Wallet
+                    </a>
+                </div>
+            </div>
+
+            <h4 class="mt-5">Recent Transactions</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ticket</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trans in transactions %}
+                        <tr>
+                            <td>{{ trans.3 }}</td>
+                            <td>{{ trans.4|default:"N/A" }}</td>
+                            <td>₹{{ trans.1 }}</td>
+                            <td>{{ trans.2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No transactions yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

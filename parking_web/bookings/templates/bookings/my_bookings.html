@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">My Bookings</h2>
+    
+    <div class="table-responsive mt-4">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ticket</th>
+                    <th>Slot</th>
+                    <th>Vehicle</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Booking Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.1 }}</td>
+                    <td>{{ booking.9 }}-{{ booking.10 }}-{{ booking.11 }}</td>
+                    <td>{{ booking.12 }}</td>
+                    <td>
+                        {% if booking.2 == 'pending' %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% elif booking.2 == 'active' %}
+                        <span class="badge bg-success">Active</span>
+                        {% elif booking.2 == 'completed' %}
+                        <span class="badge bg-primary">Completed</span>
+                        {% elif booking.2 == 'cancelled' %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                        {% elif booking.2 == 'expired' %}
+                        <span class="badge bg-danger">Expired</span>
+                        {% endif %}
+                        {% if booking.7 %}
+                        <span class="badge bg-danger">Forfeited</span>
+                        {% endif %}
+                    </td>
+                    <td>₹{{ booking.3 }}</td>
+                    <td>{{ booking.4 }}</td>
+                    <td>
+                        {% if booking.2 == 'pending' or booking.2 == 'active' %}
+                        <a href="{% url 'bookings:view_qr' booking.0 %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-qr-code"></i> QR
+                        </a>
+                        {% endif %}
+                        {% if booking.2 == 'pending' %}
+                        <a href="{% url 'bookings:cancel_booking' booking.0 %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No bookings yet. <a href="{% url 'bookings:browse_slots' %}">Book a slot now!</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

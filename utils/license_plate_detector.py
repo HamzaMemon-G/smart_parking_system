@@ -282,6 +282,7 @@ class LicensePlateDetector:
                 else:
                     cv2.putText(annotated, "Detected - Analyzing...", (10, 30), 
                               cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+                    return None, annotated
             
             return None, frame
         except Exception as e:

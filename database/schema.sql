@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
     loyalty_points INTEGER DEFAULT 0,
     wallet_balance REAL DEFAULT 0.0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP
+    last_login TIMESTAMP,
+    is_active INTEGER DEFAULT 1,
+    is_staff INTEGER DEFAULT 0,
+    is_superuser INTEGER DEFAULT 0
 );
 
 -- Vehicles Table
@@ -50,6 +53,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     booking_date DATE DEFAULT CURRENT_DATE,
     entry_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     exit_time TIMESTAMP,
+    checkout_time TIMESTAMP,
     duration_hours REAL,
     base_amount REAL,
     surge_amount REAL DEFAULT 0.0,
@@ -58,6 +62,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     payment_status TEXT DEFAULT 'pending',
     booking_status TEXT DEFAULT 'active',
     booking_type TEXT DEFAULT 'instant',
+    qr_code_data TEXT UNIQUE,
+    qr_code_path TEXT,
+    booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    checkin_deadline TIMESTAMP,
+    checkin_time TIMESTAMP,
+    forfeited INTEGER DEFAULT 0,
     notes TEXT,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id),

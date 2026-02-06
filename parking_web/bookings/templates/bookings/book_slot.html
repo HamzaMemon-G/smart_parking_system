@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Slot - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-md-8 offset-md-2">
+            <h2>Book Parking Slot</h2>
+            
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">
+                    <h5>Slot Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Slot Number:</strong> {{ slot.slot_number }}</p>
+                            <p><strong>Location:</strong> {{ slot.floor }} - {{ slot.section }}</p>
+                            <p><strong>Type:</strong> {{ slot.vehicle_type|title }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Price:</strong> ₹{{ slot.base_price_per_hour }}/hour</p>
+                            <p><strong>Your Balance:</strong> ₹{{ user.wallet_balance }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Booking Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="vehicle_id" class="form-label">Select Vehicle</label>
+                            <select class="form-select" id="vehicle_id" name="vehicle_id" required>
+                                <option value="">Choose vehicle...</option>
+                                {% for vehicle in vehicles %}
+                                <option value="{{ vehicle.vehicle_id }}">{{ vehicle.vehicle_number }} ({{ vehicle.brand }} {{ vehicle.model }})</option>
+                                {% endfor %}
+                            </select>
+                            {% if not vehicles %}
+                            <small class="text-muted">
+                                No vehicles registered. <a href="{% url 'vehicles:add_vehicle' %}">Add vehicle</a>
+                            </small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="hours" class="form-label">Duration (hours)</label>
+                            <input type="number" class="form-control" id="hours" name="hours" min="1" max="24" value="1" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <strong>Total Cost:</strong> ₹<span id="totalCost">{{ slot.base_price_per_hour }}</span>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>Important:</strong> You must check in within 30 minutes of booking, or your payment will be forfeited.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100" {% if not vehicles %}disabled{% endif %}>
+                            <i class="bi bi-check-circle"></i> Confirm Booking
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('hours').addEventListener('input', function() {
+    const hours = parseInt(this.value) || 1;
+    const pricePerHour = {{ slot.base_price_per_hour }};
+    const totalCost = hours * pricePerHour;
+    document.getElementById('totalCost').textContent = totalCost;
+});
+</script>
+{% endblock %}

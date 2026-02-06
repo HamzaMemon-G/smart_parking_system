@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Welcome, {{ user.name }}!</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-p-square display-4 text-primary"></i>
+                    <h5 class="mt-2">{{ available_count }}</h5>
+                    <p class="text-muted">Available Slots</p>
+                    <a href="{% url 'bookings:browse_slots' %}" class="btn btn-sm btn-primary">Browse</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-wallet2 display-4 text-success"></i>
+                    <h5 class="mt-2">₹{{ user.wallet_balance }}</h5>
+                    <p class="text-muted">Wallet Balance</p>
+                    <a href="{% url 'accounts:wallet' %}" class="btn btn-sm btn-success">Recharge</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-star display-4 text-warning"></i>
+                    <h5 class="mt-2">{{ user.loyalty_points }}</h5>
+                    <p class="text-muted">Loyalty Points</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-car-front display-4 text-info"></i>
+                    <h5 class="mt-2">My Vehicles</h5>
+                    <p class="text-muted">&nbsp;</p>
+                    <a href="{% url 'vehicles:vehicle_list' %}" class="btn btn-sm btn-info">Manage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-5">Active Bookings</h4>
+    {% if active_bookings %}
+    <div class="row mt-3">
+        {% for booking in active_bookings %}
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">{{ booking.9 }}-{{ booking.10 }}-{{ booking.11 }}</h5>
+                            <p class="mb-1"><strong>Ticket:</strong> {{ booking.1 }}</p>
+                            {% if booking.3 == 'pending' %}
+                            <p class="mb-1 text-warning"><strong>Status:</strong> Pending Check-in</p>
+                            <p class="mb-1"><strong>Check-in by:</strong> {{ booking.4 }}</p>
+                            {% elif booking.3 == 'active' %}
+                            <p class="mb-1 text-success"><strong>Status:</strong> Active</p>
+                            <p class="mb-1"><strong>Checked in:</strong> {{ booking.5 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'bookings:view_qr' booking.0 %}" class="btn btn-primary">
+                                <i class="bi bi-qr-code-scan"></i> View QR
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No active bookings. <a href="{% url 'bookings:browse_slots' %}">Book a slot now!</a>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'bookings:my_bookings' %}" class="btn btn-outline-primary">View All Bookings</a>
+    </div>
+</div>
+{% endblock %}

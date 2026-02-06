@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-lg-6">
+            <h1 class="display-4">Welcome to Smart Parking</h1>
+            <p class="lead">Book your parking spot online with our advanced QR-based system</p>
+            <ul class="list-unstyled">
+                <li><i class="bi bi-check-circle-fill text-success"></i> 100% Accurate QR Code System</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Online Booking & Payment</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> 30-Minute Check-in Window</li>
+                <li><i class="bi bi-check-circle-fill text-success"></i> Digital Wallet Support</li>
+            </ul>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+            {% else %}
+                <a href="{% url 'bookings:browse_slots' %}" class="btn btn-primary btn-lg">Browse Parking Slots</a>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <img src="https://via.placeholder.com/500x400/333/fff?text=QR+Parking" class="img-fluid rounded" alt="Parking">
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check display-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Book Online</h5>
+                    <p class="card-text">Reserve your parking slot in advance and avoid hassle</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-qr-code-scan display-1 text-success"></i>
+                    <h5 class="card-title mt-3">Scan QR Code</h5>
+                    <p class="card-text">Quick entry and exit with your unique QR code</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-wallet2 display-1 text-warning"></i>
+                    <h5 class="card-title mt-3">Digital Wallet</h5>
+                    <p class="card-text">Easy payments with our integrated wallet system</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

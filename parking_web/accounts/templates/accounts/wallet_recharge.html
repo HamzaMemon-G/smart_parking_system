@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Recharge Wallet - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="mt-4">Recharge Wallet</h2>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Current Balance:</strong> ₹{{ user.wallet_balance }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount to Add</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control" id="amount" name="amount" min="10" step="10" required>
+                            </div>
+                            <small class="text-muted">Minimum: ₹10</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Quick Select</label>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="document.getElementById('amount').value='100'">₹100</button>
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="document.getElementById('amount').value='500'">₹500</button>
+                                <button type="button" class="btn btn-outline-primary me-2" onclick="document.getElementById('amount').value='1000'">₹1000</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('amount').value='2000'">₹2000</button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-credit-card"></i> Proceed to Payment
+                        </button>
+                    </form>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-info-circle"></i> Payment gateway integration pending. Amount will be added manually by admin.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

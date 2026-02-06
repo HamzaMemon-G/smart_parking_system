@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Slots - Smart Parking{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Browse Parking Slots</h2>
+    
+    <div class="card mt-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="floor" class="form-label">Floor</label>
+                    <select class="form-select" id="floor" name="floor">
+                        <option value="">All Floors</option>
+                        {% for floor in floors %}
+                        <option value="{{ floor }}" {% if floor == selected_floor %}selected{% endif %}>{{ floor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="vehicle_type" class="form-label">Vehicle Type</label>
+                    <select class="form-select" id="vehicle_type" name="vehicle_type">
+                        <option value="">All Types</option>
+                        <option value="bike" {% if selected_vehicle_type == 'bike' %}selected{% endif %}>Bike</option>
+                        <option value="car" {% if selected_vehicle_type == 'car' %}selected{% endif %}>Car</option>
+                        <option value="truck" {% if selected_vehicle_type == 'truck' %}selected{% endif %}>Truck</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        {% for slot in slots %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-p-square-fill text-primary"></i>
+                        {{ slot.slot_number }}
+                    </h5>
+                    <p class="mb-1"><strong>Location:</strong> {{ slot.floor }} - {{ slot.section }}</p>
+                    <p class="mb-1"><strong>Type:</strong> {{ slot.vehicle_type|title }}</p>
+                    <p class="mb-1"><strong>Price:</strong> ₹{{ slot.base_price_per_hour }}/hour</p>
+                    <a href="{% url 'bookings:book_slot' slot.slot_id %}" class="btn btn-success w-100 mt-2">
+                        Book Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-warning">
+                No available slots found. Please try different filters.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
